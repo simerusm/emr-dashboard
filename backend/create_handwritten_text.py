@@ -54,9 +54,9 @@ def create_combined_pdf(handwritten_image: str, typed_text: str, output_pdf: str
 
 # Example typed text
 typed_text = (
-    "This is actual typed text.\n"
-    "It appears clear and formatted normally.\n\n"
-    "You can include detailed explanations, structured information, and other content here."
+    "This is handwritten text.\n"
+    "It simulates a note written by hand.\n\n"
+    "Please review and interpret accordingly. Bananas and apples, cherry cheesecake."
 )
 
 output_pdf_filename = "./data/combined_document.pdf"
