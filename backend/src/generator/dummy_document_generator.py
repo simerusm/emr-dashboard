@@ -2,13 +2,13 @@ from fpdf import FPDF
 from PIL import Image, ImageDraw, ImageFont
 import os
 
-# ----------- Creating an image that simulates handwritten text -----------
+# ----------- Creating an image that simulates handwritten text for testing purposes -----------
 
 def create_handwritten_image(text: str, output_path: str, width: int = 600, height: int = 200):
     image = Image.new('RGB', (width, height), color='white')
     draw = ImageDraw.Draw(image)
     
-    # Attempt to load a handwriting-style font. Adjust the font path as needed.
+    # Attempt to load a handwriting-style font.
     try:
         font = ImageFont.truetype("ComicSansMS.ttf", size=24)
     except IOError:
@@ -36,13 +36,10 @@ def create_combined_pdf(handwritten_image: str, typed_text: str, output_pdf: str
     pdf.add_page()
     
     # Add the handwritten image at the top of the first page.
-    # Adjust x, y, and width (w) as needed.
     pdf.image(handwritten_image, x=10, y=10, w=pdf.w - 20)
     
     # Move the cursor below the image.
-    # This value might need to be adjusted based on your image height.
     pdf.ln(45)
-    
     pdf.set_font("Arial", size=12)
     
     # Write the typed text using multi_cell so text wraps correctly.
