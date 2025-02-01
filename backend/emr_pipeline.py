@@ -114,7 +114,7 @@ def extract_text_from_pdf(pdf_path: str) -> str:
             
             # Render page as image using PyMuPDF for OCR processing.
             page_fitz = doc.load_page(page_num)
-            zoom = 2  # Adjust zoom factor for higher resolution if needed.
+            zoom = 2
             mat = fitz.Matrix(zoom, zoom)
             pix = page_fitz.get_pixmap(matrix=mat)
             img_bytes = pix.tobytes("png")
