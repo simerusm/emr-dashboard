@@ -5,7 +5,6 @@ import argparse
 from flask import Flask, request, render_template, jsonify
 from werkzeug.utils import secure_filename
 
-# Import your modular functions.
 from extractor.pdf_extractor import extract_text_from_pdf
 from extractor.image_extractor import extract_text_from_image
 from llm.llm_client import call_llm_combined
@@ -56,7 +55,6 @@ def analyze():
             
             os.remove(file_path)
             
-            # Return a JSON response. You could also render a template showing a side-by-side comparison.
             return jsonify({
                 'original_text': extracted_text,
                 'cleaned_text': cleaned_text

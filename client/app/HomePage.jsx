@@ -1,14 +1,33 @@
 'use client';
 
-import React from 'react';
-import FileUpload from './components/FileUpload';
+import React, { useEffect, useState } from 'react';
+import DiffViewer from "./components/DiffViewer"
+import { getProcessedEMR } from "./lib/emrProcessor"
 
 export default function HomePage() {
+  const [emrData, setEmrData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getProcessedEMR();
+        setEmrData(data);
+      } catch (error) {
+        console.error('Error fetching EMR data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="container">
-      <h1>EMR Analyzer</h1>
-      <p>Upload your EMR document (PDF or image) to get recommendations and improvements.</p>
-      <FileUpload />
-    </div>
-  );
+    <DiffViewer emrData={emrData} />
+  )
 }
