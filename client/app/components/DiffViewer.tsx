@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from "react"
 import type { EMRSection } from "../lib/types"
 
@@ -44,4 +46,3 @@ export default function DiffViewer({ emrData }: DiffViewerProps) {
     </div>
   )
 }
-

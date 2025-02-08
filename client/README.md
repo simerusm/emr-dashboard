@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EMR Analyzer
+
+## Overview
+
+The EMR Analyzer is a production-grade application designed to process Electronic Medical Records (EMR) from PDFs and images. It utilizes Optical Character Recognition (OCR) to extract text and employs a Language Model (LLM) to clean and enhance the extracted content.
+
+## Features
+
+- **Text Extraction**: Extracts text from various file formats, including PDFs and images.
+- **OCR Integration**: Uses Tesseract OCR for accurate text recognition from images.
+- **LLM Cleanup**: Processes extracted text through a Language Model to suggest improvements and corrections.
+- **User-Friendly Interface**: Provides an intuitive interface for users to upload files and view results.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Python 3.7 or higher
+- Node.js (for the client-side application)
+- Required Python packages (listed in `requirements.txt`)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/yourusername/emr-analyzer.git
+   cd emr-analyzer
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Set up the backend**:
+   - Navigate to the backend directory:
+     ```bash
+     cd backend
+     ```
+   - Install the required Python packages:
+     ```bash
+     pip install -r requirements.txt
+     ```
 
-## Learn More
+3. **Set up the client**:
+   - Navigate to the client directory:
+     ```bash
+     cd client
+     ```
+   - Install the required Node.js packages:
+     ```bash
+     npm install
+     ```
 
-To learn more about Next.js, take a look at the following resources:
+4. **Configure environment variables**:
+   - Create a `.env` file in the backend directory and set the necessary environment variables (e.g., API keys, upload paths).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Running the Application
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Start the backend server**:
+   ```bash
+   cd backend
+   python src/main.py path/to/your/input_file.pdf
+   ```
 
-## Deploy on Vercel
+2. **Start the client application**:
+   ```bash
+   cd client
+   npm run dev
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Access the application**:
+   Open your browser and navigate to `http://localhost:3000` to access the EMR Analyzer.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Usage
+
+- Upload your EMR document (PDF or image) to get recommendations and improvements.
+- The application will extract the text, process it, and display the cleaned version along with suggested changes.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a pull request or open an issue for any enhancements or bug fixes.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) for text recognition.
+- [Next.js](https://nextjs.org/) for the frontend framework.
+- [Flask](https://flask.palletsprojects.com/) for the backend framework.
