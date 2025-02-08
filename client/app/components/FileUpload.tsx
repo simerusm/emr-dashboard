@@ -23,7 +23,6 @@ export default function EMRUploader() {
       })
       if (response.ok) {
         console.log("File uploaded successfully")
-        // You can add logic here to update the UI or trigger the EMRViewer
       } else {
         console.error("File upload failed")
       }

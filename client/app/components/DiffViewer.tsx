@@ -15,19 +15,20 @@ export default function DiffViewer({ emrData }: DiffViewerProps) {
           <h2 className="text-xl font-bold mb-2">{section.title}</h2>
           <div>
             {section.content.map((item, itemIndex) => {
+              console.log(item)
               if (typeof item === "string") {
                 return <span key={itemIndex}>{item}</span>
               } else {
                 return (
                   <span
                     key={itemIndex}
-                    className="bg-yellow-200 relative group cursor-pointer"
+                    className="bg-yellow-300 text-black relative group cursor-pointer"
                     onMouseEnter={() => setHoveredChange(item.original)}
                     onMouseLeave={() => setHoveredChange(null)}
                   >
                     {item.suggested}
                     {hoveredChange === item.original && (
-                      <span className="absolute bottom-full left-0 bg-white border p-2 rounded shadow-lg z-10 w-max max-w-xs">
+                      <span className="absolute bottom-full left-0 bg-white border p-2 rounded shadow-lg z-10 w-max max-w-xs text-red-500">
                         Original: {item.original}
                         <br />
                         Reason: {item.reason}

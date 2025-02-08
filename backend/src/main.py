@@ -3,7 +3,7 @@ import logging
 import argparse
 from .extractor.image_extractor import extract_text_from_image
 from .extractor.pdf_extractor import extract_text_from_pdf
-from .llm.llm_client import call_llm_combined
+from .llm.llm_client import call_llm_combined, analyze_emr_sections
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -46,7 +46,8 @@ if __name__ == "__main__":
         print(extracted_text)
         
         # Use the LLM to deduce and clean the intended content.
-        cleaned_text = call_llm_combined(extracted_text)
+        #cleaned_text = call_llm_combined(extracted_text)
+        cleaned_text = analyze_emr_sections(extracted_text)
         logger.info("Cleaned Corrected Version:")
         print(cleaned_text)
     except Exception as e:
