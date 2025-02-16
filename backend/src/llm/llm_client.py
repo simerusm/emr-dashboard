@@ -68,7 +68,7 @@ def analyze_emr_sections(extracted_text: str) -> str:
     Analyze the given EMR text and separate it into sections by title. For each section, 
     the LLM must extract the title and content, identify areas for improvement, and generate suggestions.
     
-    The output must be a JSON array of objects in the following format exactly:
+    Output format:
     
     [
       {
@@ -85,8 +85,6 @@ def analyze_emr_sections(extracted_text: str) -> str:
       },
       ... (other sections)
     ]
-    
-    The LLM must output only valid JSON (parseable) with no additional commentary.
     """
     prompt = f"""
             You are a precise medical document analyzer. Your task is to parse the following electronic medical record (EMR) text, separate it into its respective sections, and generate improvements within each section. For each section, identify the section title (e.g., "Patient Information", "Chief Complaint", "Medical History", "Assessment and Plan", BUT NOT LIMITED TO THESE ONLY, USE YOUR OWN JUDGEMENT TO ASSIGN ACCURATE TITLES) and extract its content.

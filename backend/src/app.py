@@ -2,6 +2,7 @@
 import os
 import logging
 import argparse
+import uuid
 from flask import Flask, request, render_template, jsonify
 from werkzeug.utils import secure_filename
 
@@ -17,17 +18,16 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = TEMP_UPLOAD_FOLDER
 
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    file_ext = os.path.splitext(filename)[1].lower()
+    return file_ext in ALLOWED_EXTENSIONS
 
-def extract_text(file_path: str) -> str:
+def extract_text(file_path: str, ext: str) -> str:
     """
     Determines file type based on extension and routes extraction to the appropriate function.
     Supported file types:
       - PDF: Uses combined native text extraction and OCR.
       - Image files (.png, .jpg, .jpeg, etc.): Uses OCR.
     """
-    ext = os.path.splitext(file_path)[1].lower()
     if ext == ".pdf":
         return extract_text_from_pdf(file_path)
     elif ext in ALLOWED_EXTENSIONS:
@@ -48,15 +48,23 @@ def analyze():
         return jsonify({'error': 'No file selected'}), 400
 
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
+        fileId = str(uuid.uuid4())
+        ext = os.path.splitext(file.filename)[1].lower()
+
+        filename = secure_filename(fileId + ext)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
         logger.info(f"File saved to {file_path}")
 
         try:
-            extracted_text = extract_text(file_path)
+            extracted_text = extract_text(file_path, ext)
             analyzed_text = analyze_emr_sections(extracted_text)
-            return analyzed_text
+
+            response = {
+                'fileId': fileId,
+                'data': analyzed_text
+            }
+            return jsonify(response), 200
         except Exception as e:
             logger.error(f"Error processing file: {e}")
             return jsonify({'error': str(e)}), 500
