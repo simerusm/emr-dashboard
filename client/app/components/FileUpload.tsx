@@ -25,20 +25,20 @@ export default function FileUpload() {
     formData.append("file", file)
 
     try {
-      // const response = await fetch("/api/upload", {
-      //   method: "POST",
-      //   body: formData,
-      // })
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
 
-      // if (response.ok) {
-      //   const data = await response.json()
-      //   router.push(`/analyze/${data.fileId}`)
-      // } else {
-      //   console.error("File upload failed")
-      // }
-      router.push(`/analyze/123`)
+      if (response.ok) {
+        const data = await response.json()
+        router.push(`/analyze/${data.fileId}`)
+      } else {
+        console.error("File upload failed")
+      }
+      //router.push(`/analyze/123`)
     } catch (error) {
-      console.error("Error uploading file:", error)
+      console.error("Error uploading file: ", error)
     } finally {
       setUploading(false)
     }

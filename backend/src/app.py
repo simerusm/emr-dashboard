@@ -5,16 +5,14 @@ import argparse
 from flask import Flask, request, render_template, jsonify
 from werkzeug.utils import secure_filename
 
-from extractor.pdf_extractor import extract_text_from_pdf
-from extractor.image_extractor import extract_text_from_image
-from llm.llm_client import call_llm_combined
+from .extractor.pdf_extractor import extract_text_from_pdf
+from .extractor.image_extractor import extract_text_from_image
+from .llm.llm_client import analyze_emr_sections
 from config.settings import ALLOWED_EXTENSIONS, TEMP_UPLOAD_FOLDER
 
-# Configure logging.
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Create the Flask app.
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = TEMP_UPLOAD_FOLDER
 
@@ -22,14 +20,27 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+def extract_text(file_path: str) -> str:
+    """
+    Determines file type based on extension and routes extraction to the appropriate function.
+    Supported file types:
+      - PDF: Uses combined native text extraction and OCR.
+      - Image files (.png, .jpg, .jpeg, etc.): Uses OCR.
+    """
+    ext = os.path.splitext(file_path)[1].lower()
+    if ext == ".pdf":
+        return extract_text_from_pdf(file_path)
+    elif ext in ALLOWED_EXTENSIONS:
+        return extract_text_from_image(file_path)
+    else:
+        error_msg = f"Unsupported file format: {ext}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    # Ensure the file was submitted.
-    if 'file' not in request.files:
+    # Ensuring ImmutableMultiDict([...]) request contains elements
+    if len(request.files) == 0:
         return jsonify({'error': 'No file part in the request'}), 400
 
     file = request.files['file']
@@ -42,23 +53,10 @@ def analyze():
         file.save(file_path)
         logger.info(f"File saved to {file_path}")
 
-        # Determine extraction method based on file extension.
-        ext = filename.rsplit('.', 1)[1].lower()
         try:
-            if ext == 'pdf':
-                extracted_text = extract_text_from_pdf(file_path)
-            else:  # Assume image file for allowed extensions.
-                extracted_text = extract_text_from_image(file_path)
-
-            # Call LLM for improved text.
-            cleaned_text = call_llm_combined(extracted_text)
-            
-            os.remove(file_path)
-            
-            return jsonify({
-                'original_text': extracted_text,
-                'cleaned_text': cleaned_text
-            })
+            extracted_text = extract_text(file_path)
+            analyzed_text = analyze_emr_sections(extracted_text)
+            return analyzed_text
         except Exception as e:
             logger.error(f"Error processing file: {e}")
             return jsonify({'error': str(e)}), 500
