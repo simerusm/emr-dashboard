@@ -69,13 +69,16 @@ The project is divided into two main parts:
 
 ### Running the Application
 
-1. **Start the backend server**:
+1. **Install necessary requirements**:
+   Install necessary packages via the requirements.txt file provided.
+
+2. **Start the backend server**:
    ```bash
    cd backend
-   python src/main.py
+   python -m src.app
    ```
 
-2. **Start the frontend application**:
+3. **Start the frontend application**:
    ```bash
    cd client
    npm run dev
