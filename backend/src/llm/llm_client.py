@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -100,7 +99,7 @@ def analyze_emr_sections(extracted_text: str) -> str:
             - "title": the section title,
             - "content": an array that may include both strings and objects (as described above).
 
-            The output must be a JSON array of objects in the following format exactly:
+            Output the result as a JSON array of objects, DO NOT wrap it in triple backticks or include any additional text, in the following format exactly:
     
             [
                 {{
@@ -118,7 +117,7 @@ def analyze_emr_sections(extracted_text: str) -> str:
                 ... (other sections)
             ]
             
-            The LLM must output only valid JSON (parseable) with no additional commentary.
+            IMPORTANT: Output ONLY the JSON array. DO NOT wrap it in triple backticks or include any additional text.
 
             Here is the extracted text:
             {extracted_text}

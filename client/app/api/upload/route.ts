@@ -1,19 +1,34 @@
 import { NextResponse } from "next/server"
 
+// TODO: NOT USED YET, REFACT TO ENFORCE PROXY FOR VALIDATION
+
 export async function POST(request: Request) {
-  const formData = await request.formData()
-  const file = formData.get("file") as File
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5003'}/analyze`,
+      {
+        method: 'POST',
+        body: request.body,
+        headers: request.headers,
+      }
+    );
+  
+    const analysisData = await response.json();
 
-  if (!file) {
-    return NextResponse.json({ error: "No file uploaded" }, { status: 400 })
+    if (!('fileId' in analysisData) || !('data' in analysisData)) {
+      return NextResponse.json({ error: 'Invalid response format from analysis service' }, { status: 500 })
+    }
+
+    return NextResponse.json({ 
+      message: "File uploaded successfully",
+      fileId: analysisData.fileId,
+      data: analysisData.data
+    }, { status: 200 })
+    
+  } catch (error) {
+    console.error('Error processing upload:', error)
+    return NextResponse.json({ 
+      error: "Error processing upload" 
+    }, { status: 500 })
   }
-
-  // TODO:
-  // 1. Save the file to a storage service
-  // 2. Process the file (parse the EMR)
-  // 3. Run it through LLM for suggestions
-  // 4. Save the results
-
-  // For now, we'll just return a success message
-  return NextResponse.json({ message: "File uploaded successfully" }, { status: 200 })
 }

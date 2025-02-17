@@ -1,10 +1,10 @@
-# src/main.py
 import os
 import logging
 import argparse
 import uuid
 from flask import Flask, request, render_template, jsonify
 from werkzeug.utils import secure_filename
+from flask_cors import CORS
 
 from .extractor.pdf_extractor import extract_text_from_pdf
 from .extractor.image_extractor import extract_text_from_image
@@ -15,6 +15,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 app.config['UPLOAD_FOLDER'] = TEMP_UPLOAD_FOLDER
 
 def allowed_file(filename):
@@ -39,6 +40,47 @@ def extract_text(file_path: str, ext: str) -> str:
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
+    """
+    Analyzes uploaded EMR documents (PDF or images) and returns structured analysis.
+
+    Request:
+    - Method: POST
+    - Content-Type: multipart/form-data; boundary=----WebKitFormBoundary...
+    - Body: {
+        file: File (PDF or image)
+    }
+
+    Response:
+    - Success (200):
+        {
+            "fileId": string,
+            "data": [
+                {
+                    "title": "...",
+                    "content": [
+                        {
+                            "original": "...",
+                            "suggested": "...",
+                            "reason": "..."
+                        },
+                        "..."
+                    ]
+                },
+                {
+                    "title": "...",
+                    "content": [
+                        "..."
+                    ]
+                },
+                ...
+            ]
+        }
+    - Error (400/500):
+        {
+            "error": string (error message)
+        }
+    """
+
     # Ensuring ImmutableMultiDict([...]) request contains elements
     if len(request.files) == 0:
         return jsonify({'error': 'No file part in the request'}), 400

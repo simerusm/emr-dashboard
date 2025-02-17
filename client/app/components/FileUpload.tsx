@@ -25,18 +25,36 @@ export default function FileUpload() {
     formData.append("file", file)
 
     try {
-      const response = await fetch("/api/upload", {
+      const response = await fetch("http://localhost:5003/analyze", {
         method: "POST",
         body: formData,
-      })
+      });
 
       if (response.ok) {
         const data = await response.json()
+
+        let analyzedData = data.data;
+        
+        // Remove leading and trailing triple backticks along with JSON string
+        if (typeof analyzedData === 'string') {
+          analyzedData = analyzedData.trim();
+          // Remove opening triple backticks (with an optional "json") and any newline after them.
+          analyzedData = analyzedData.replace(/^```(?:json)?\s*\n/, '');
+          // Remove trailing triple backticks.
+          analyzedData = analyzedData.replace(/\n```$/, '');
+        }
+
+        const parsedData = JSON.parse(analyzedData);
+        
+        if (data.data) {
+          localStorage.setItem(`analysis_${data.fileId}`, JSON.stringify(parsedData))
+        }
+        
         router.push(`/analyze/${data.fileId}`)
       } else {
-        console.error("File upload failed")
+        const errorData = await response.json()
+        console.error("File upload failed:", errorData.error)
       }
-      //router.push(`/analyze/123`)
     } catch (error) {
       console.error("Error uploading file: ", error)
     } finally {
@@ -80,4 +98,3 @@ export default function FileUpload() {
     </div>
   )
 }
-
