@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
 import { useState, useCallback } from "react"
 import type { EMRSection, EMRChange } from "../lib/types"
@@ -35,24 +35,31 @@ export default function DiffViewer({ emrData }: DiffViewerProps) {
       {emrData.map((section, sectionIndex) => (
         <div key={sectionIndex} className="border p-4 rounded">
           <h2 className="text-xl font-bold mb-2">{section.title}</h2>
-          <div>
+          <p>
             {section.content.map((item, itemIndex) => {
               if (typeof item === "string") {
-                return <span key={itemIndex}>{item}</span>
+                return (
+                  <React.Fragment key={itemIndex}>
+                    <span>{item}</span>
+                    {itemIndex < section.content.length - 1 && " "}
+                  </React.Fragment>
+                )
               } else {
                 return (
-                  <span
-                    key={itemIndex}
-                    className="bg-yellow-300 text-black relative group cursor-pointer"
-                    onMouseEnter={(e) => handleMouseEnter(e, item)}
-                    onMouseLeave={handleMouseLeave}
-                  >
-                    {item.suggested}
-                  </span>
+                  <React.Fragment key={itemIndex}>
+                    <span
+                      className="bg-yellow-300 text-black relative group cursor-pointer"
+                      onMouseEnter={(e) => handleMouseEnter(e, item)}
+                      onMouseLeave={handleMouseLeave}
+                    >
+                      {item.suggested}
+                    </span>
+                    {itemIndex < section.content.length - 1 && " "}
+                  </React.Fragment>
                 )
               }
             })}
-          </div>
+          </p>
         </div>
       ))}
       {tooltip.change && (
@@ -70,4 +77,3 @@ export default function DiffViewer({ emrData }: DiffViewerProps) {
     </div>
   )
 }
-
