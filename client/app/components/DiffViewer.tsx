@@ -4,27 +4,7 @@ import type React from "react"
 
 import { useState, useCallback, useRef } from "react"
 import { ChevronRight } from "lucide-react"
-
-interface EMRChange {
-  original: string
-  suggested: string
-  reason: string
-}
-
-interface EMRSection {
-  title: string
-  content: (string | EMRChange)[]
-}
-
-interface DiffViewerProps {
-  emrData: EMRSection[]
-}
-
-interface TooltipState {
-  change: EMRChange | null
-  x: number
-  y: number
-}
+import type { EMRSection, EMRChange, DiffViewerProps, TooltipState } from "../lib/types"
 
 export default function DiffViewer({ emrData }: DiffViewerProps) {
   const [tooltip, setTooltip] = useState<TooltipState>({ change: null, x: 0, y: 0 })
@@ -85,7 +65,9 @@ export default function DiffViewer({ emrData }: DiffViewerProps) {
           {emrData.map((section, sectionIndex) => (
             <div
               key={sectionIndex}
-              ref={(el) => (sectionRefs.current[section.title] = el)}
+              ref={(el) => {
+                sectionRefs.current[section.title] = el
+              }}
               className="bg-white rounded-lg shadow-md overflow-hidden"
             >
               <div className="border-b bg-gray-50 px-6 py-4 flex items-center justify-between">
@@ -152,4 +134,3 @@ export default function DiffViewer({ emrData }: DiffViewerProps) {
     </div>
   )
 }
-
