@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  auth-service:
+    build: ./backend/auth-service
+    ports:
+      - "5001:5001"
+    env_file:
+      - ./backend/auth-service/.env
+
+  patient-service:
+    build: ./backend/patient-data-service
+    ports:
+      - "5002:5002"
+    env_file:
+      - ./backend/patient-data-service/.env
+
+  analytics-service:
+    build: ./backend/analytics-service
+    ports:
+      - "5003:5003"
+    env_file:
+      - ./backend/analytics-service/.env
+
+  notification-service:
+    build: ./backend/notification-service
+    ports:
+      - "5004:5004"
+    env_file:
+      - ./backend/notification-service/.env
+
+  api-gateway:
+    build: ./backend/api-gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth-service
+      - patient-service
+      - analytics-service
+      - notification-service
