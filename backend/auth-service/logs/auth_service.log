@@ -1,0 +1,107 @@
+[2025-03-04 22:49:50,680] INFO in _internal: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.28:5001
+[2025-03-04 22:49:50,680] INFO in _internal: [33mPress CTRL+C to quit[0m
+[2025-03-04 22:50:39,451] INFO in _internal: 127.0.0.1 - - [04/Mar/2025 22:50:39] "GET /health HTTP/1.1" 200 -
+[2025-03-04 22:51:04,712] INFO in _internal: 127.0.0.1 - - [04/Mar/2025 22:51:04] "[35m[1mPOST /register HTTP/1.1[0m" 500 -
+[2025-03-04 22:51:04,743] ERROR in _internal: Error on request:
+Traceback (most recent call last):
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such table: users
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/werkzeug/serving.py", line 370, in run_wsgi
+    execute(self.server.app)
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/werkzeug/serving.py", line 331, in execute
+    application_iter = app(environ, start_response)
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/auth-service/src/app.py", line 28, in register
+    if AuthService.get_user_by_email(db_session, data['email']):
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/auth-service/src/services/auth_service.py", line 150, in get_user_by_email
+    return db_session.query(User).filter_by(email=email).first()
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/orm/query.py", line 2748, in first
+    return self.limit(1)._iter().first()  # type: ignore
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/orm/query.py", line 2847, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/orm/session.py", line 2188, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
+    return meth(
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/sql/elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1639, in _execute_clauseelement
+    ret = self._execute_context(
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2343, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: users
+[SQL: SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.password_hash AS users_password_hash, users.first_name AS users_first_name, users.last_name AS users_last_name, users.is_active AS users_is_active, users.is_verified AS users_is_verified, users.verification_token AS users_verification_token, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.last_login_at AS users_last_login_at 
+FROM users 
+WHERE users.email = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('test@example.com', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-03-04 22:59:46,901] ERROR in base: Exception during reset or similar
+Traceback (most recent call last):
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 988, in _finalize_fairy
+    fairy._reset(
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 1438, in _reset
+    pool._dialect.do_rollback(self)
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 692, in do_rollback
+    dbapi_connection.rollback()
+sqlite3.ProgrammingError: SQLite objects created in a thread can only be used in that same thread. The object was created in thread id 6148370432 and this is thread id 8674561024.
+[2025-03-04 22:59:46,903] ERROR in base: Exception terminating connection <sqlite3.Connection object at 0x104b9ca40>
+Traceback (most recent call last):
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 988, in _finalize_fairy
+    fairy._reset(
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 1438, in _reset
+    pool._dialect.do_rollback(self)
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 692, in do_rollback
+    dbapi_connection.rollback()
+sqlite3.ProgrammingError: SQLite objects created in a thread can only be used in that same thread. The object was created in thread id 6148370432 and this is thread id 8674561024.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/pool/base.py", line 377, in _close_connection
+    self._dialect.do_terminate(connection)
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 698, in do_terminate
+    self.do_close(dbapi_connection)
+  File "/Users/simerusmahesh/Code/aski-hospitals/agentic-analyzer/backend/venv/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 701, in do_close
+    dbapi_connection.close()
+sqlite3.ProgrammingError: SQLite objects created in a thread can only be used in that same thread. The object was created in thread id 6148370432 and this is thread id 8674561024.
+[2025-03-04 22:59:50,738] INFO in _internal: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.28:5001
+[2025-03-04 22:59:50,738] INFO in _internal: [33mPress CTRL+C to quit[0m
+[2025-03-04 22:59:59,176] INFO in _internal: 127.0.0.1 - - [04/Mar/2025 22:59:59] "[35m[1mPOST /register HTTP/1.1[0m" 201 -
+[2025-03-04 23:00:51,552] INFO in _internal: 127.0.0.1 - - [04/Mar/2025 23:00:51] "POST /login HTTP/1.1" 200 -
