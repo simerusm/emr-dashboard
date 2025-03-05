@@ -38,5 +38,54 @@
    python -m unittest discover -s tests -p "*.py"
    ```
 
-## Notes
-- Make sure to set up your environment variables as needed before running the service.
+## Endpoints
+
+### 1. Register a New User
+
+**Curl Command:**
+```bash
+curl -X POST http://localhost:5001/register \
+     -H "Content-Type: application/json" \
+     -d '{"email": "test@example.com", "username": "testuser", "password": "ValidPass123!"}'
+```
+
+**Expected Output:**
+```json
+{
+    "message": "User created successfully",
+    "user_id": "137155ac-2dd0-410d-8245-8820b75ad1f0"
+}
+```
+
+### 2. Login with the New User
+
+**Curl Command:**
+```bash
+curl -X POST http://localhost:5001/login \
+     -H "Content-Type: application/json" \
+     -d '{"email": "test@example.com", "password": "ValidPass123!"}'
+```
+
+**Expected Output:**
+```json
+{
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+### 3. Access Protected Endpoint
+
+**Curl Command:**
+```bash
+curl -X GET http://localhost:5001/protected \
+     -H "Authorization: Bearer <access_token>"
+```
+Replace `<access_token>` with the actual token received from the login response
+
+**Expected Output:**
+```json
+{
+    "message": "Hello, testuser! You have accessed a protected endpoint."
+}
+```
