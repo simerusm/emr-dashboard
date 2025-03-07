@@ -3,10 +3,9 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from ..config import app_config
 from ..models import Base
 
-# Create engine and session factory
-engine = create_engine(app_config.SQLALCHEMY_DATABASE_URI)
-session_factory = sessionmaker(bind=engine)
-Session = scoped_session(session_factory)
+engine = create_engine(app_config.SQLALCHEMY_DATABASE_URI) # Manages db connection
+session_factory = sessionmaker(bind=engine) # Creates Session objects to interact with the binded db
+Session = scoped_session(session_factory) # Ensures each thread/request has its own Session instance
 
 def init_db():
     """Initialize the database schema."""
@@ -14,12 +13,8 @@ def init_db():
 
 def get_db_session():
     """Get a database session."""
-    session = Session()
-    try:
-        return session
-    finally:
-        session.close()
+    return Session()
 
 def close_db_session(exception=None):
-    """Close the database session."""
+    """Close the database session, cleans up the thread-local session registry."""
     Session.remove()

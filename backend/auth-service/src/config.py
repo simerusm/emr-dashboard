@@ -43,8 +43,6 @@ class TestingConfig(Config):
     """Testing configuration."""
     DEBUG = False
     TESTING = True
-
-    # Create a new db everytime for testing
     SQLALCHEMY_DATABASE_URI = "sqlite:///dbs/test.db"
 
 class ProductionConfig(Config):

@@ -1,4 +1,4 @@
-# Auth Service Microservice Setup
+# Auth Microservice Setup
 
 ## Prerequisites
 - Ensure you have Python 3.6 or higher installed.
