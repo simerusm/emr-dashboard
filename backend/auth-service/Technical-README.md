@@ -97,3 +97,70 @@ The route handler can then access this user data from `g` to personalize the res
 The beauty of this approach is that the server doesn't need to make a database call to verify who the user is — all the necessary information is in the token itself, which speeds up authentication.
 
 **Note**: In the middleware, we're not using a database session, which is good for performance. However, keep in mind that if user permissions change, the token will still contain the old permissions until it expires or the user logs in again.
+
+## SQLAlchemy Session Management
+
+### Understanding SQLAlchemy Sessions
+Database sessions in SQLAlchemy serve as a working context for operations involving the database, including:
+- Querying data
+- Adding new objects
+- Modifying existing objects
+- Deleting objects
+
+### Scoped Sessions and Thread-Local Storage
+In our application, we use SQLAlchemy's `scoped_session` configured in `db.py`:
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
+from ..config import app_config
+from ..models import Base
+
+# Create engine and session factory
+engine = create_engine(app_config.SQLALCHEMY_DATABASE_URI)
+session_factory = sessionmaker(bind=engine)
+Session = scoped_session(session_factory)
+```
+
+#### What is a Scoped Session?
+- A scoped session is a thread-local registry of sessions.
+- Each thread gets its own session object.
+- Access the current thread's session by calling methods on the `Session` registry.
+- `Session.remove()` closes and removes the session for the current thread only.
+
+### Session Lifecycle Management
+1. **Creating a Session**:
+   ```python
+   def get_db_session():
+       """Get a database session."""
+       return Session()
+   ```
+
+2. **Committing Changes**:
+   ```python
+   db_session.commit()  # For a specific session instance
+   # OR
+   Session.commit()  # For the current thread's session
+   ```
+    It's safe to say that in most cases these two refer to and do the same thing.
+
+3. **Closing a Session**:
+   ```python
+   # For a specific session instance
+   db_session.close()
+
+   # For the thread-local session
+   def close_db_session(exception=None):
+       """Close the database session."""
+       Session.remove()
+   ```
+   Again, it's safe to say that in most cases these two refer to and do the same thing.
+
+### Potential Issues with Improper Session Management
+- **Connection leaks**: Exhausts the connection pool if sessions are not closed.
+- **Resource consumption**: Open sessions consume memory and database resources.
+- **Lock contention**: Unclosed sessions may hold locks, causing delays.
+- **Performance degradation**: Accumulating connections can slow down the application and database.
+
+### Summary
+Using `scoped_session` provides a convenient way to manage database sessions by thread, but proper session cleanup is essential. The `finally` block ensures resources are cleaned up, making it crucial for robust session management.
