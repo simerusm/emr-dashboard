@@ -29,8 +29,10 @@ class User(Base):
     last_name = Column(String(50), nullable=True)
     
     is_active = Column(Boolean, default=True, nullable=False)
-    is_verified = Column(Boolean, default=False, nullable=False)
-    verification_token = Column(String(100), nullable=True)
+
+    # Password reset fields
+    password_reset_token = Column(String(100), nullable=True)
+    password_reset_expires_at = Column(DateTime, nullable=True)
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -52,7 +54,6 @@ class User(Base):
             "first_name": self.first_name,
             "last_name": self.last_name,
             "is_active": self.is_active,
-            "is_verified": self.is_verified,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "last_login_at": self.last_login_at.isoformat() if self.last_login_at else None,
             "roles": [role.name for role in self.roles]
@@ -60,7 +61,7 @@ class User(Base):
         
         # Include sensitive information only if explicitly requested
         if include_sensitive:
-            user_dict["verification_token"] = self.verification_token
+            user_dict["password_reset_token"] = self.password_reset_token
         
         return user_dict
 

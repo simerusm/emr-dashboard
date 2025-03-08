@@ -27,6 +27,10 @@ class Config:
     # Security configuration
     PASSWORD_SALT = os.getenv("PASSWORD_SALT", "dev_salt")
     CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+
+    # Security headers
+    ENABLE_CONTENT_SECURITY_POLICY = os.getenv("ENABLE_CONTENT_SECURITY_POLICY", "True").lower() == "true"
+    ENABLE_HSTS = os.getenv("ENABLE_HSTS", "True").lower() == "true"
     
     # Rate limiting
     RATE_LIMIT_DEFAULT = int(os.getenv("RATE_LIMIT_DEFAULT", 100))
