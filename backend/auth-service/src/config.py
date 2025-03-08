@@ -42,6 +42,7 @@ class DevelopmentConfig(Config):
     """Development configuration."""
     DEBUG = True
     TESTING = False
+    SQLALCHEMY_DATABASE_URI = "sqlite:///dbs/dev.db"
 
 class TestingConfig(Config):
     """Testing configuration."""
