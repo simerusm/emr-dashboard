@@ -4,6 +4,7 @@ import psutil
 import platform
 from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request, current_app, g
+from sqlalchemy import text
 
 from ..models import User, RefreshToken
 from ..services import AuthService
@@ -26,7 +27,7 @@ def health():
         db_healthy = False
         try:
             # Simple query to check database connection
-            db_session.execute("SELECT 1").fetchone()
+            db_session.execute(text('SELECT 1')).fetchone()
             db_healthy = True
         except Exception as e:
             current_app.logger.error(f"Database health check failed: {str(e)}")
