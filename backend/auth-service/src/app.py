@@ -1,85 +1,118 @@
 from flask import Flask, jsonify, request, g
-from .config import app_config
-from .utils import init_db, get_db_session, close_db_session, setup_logging, Validator
-from .services import AuthService, RBACService
-from .middleware.auth_middleware import authenticate, require_permissions, require_roles, rate_limit
-from sqlalchemy import inspect
+from werkzeug.exceptions import HTTPException
+import traceback
+import sys
+import redis
+import os
+from flask_cors import CORS
 
+from .config import app_config
+from .utils import init_db, get_db_session, close_db_session, setup_logging
+from .models import Base
+from .routes import auth_bp, user_bp, admin_bp, system_bp
+from .middleware.security_middleware import setup_security_headers
+
+# Create and configure the app
 app = Flask(__name__)
 app.config.from_object(app_config)
+
+# Set up CORS
+CORS(app, resources={r"/*": {"origins": app.config.get('CORS_ORIGINS', '*')}})
+
+# Set up logging
 setup_logging(app)
+
+# Set up security headers
+setup_security_headers(app)
+
+# Initialize database
 init_db()
 
-# Health check route
-@app.route('/health', methods=['GET'])
-def health():
-    return jsonify({"status": "ok"}), 200
+# Register blueprints
+app.register_blueprint(auth_bp)  # /auth/...
+app.register_blueprint(user_bp)  # /users/...
+app.register_blueprint(admin_bp)  # /admin/...
+app.register_blueprint(system_bp)  # / and /health, /metrics
 
-# User Registration endpoint
-@app.route('/register', methods=['POST'])
-def register():
-    """Endpoint to register a user. Db sessions saved in the AuthService functions."""
+# Register error handlers
+@app.errorhandler(400)
+def bad_request(error):
+    return jsonify({"error": "Bad request", "message": str(error)}), 400
 
-    data = request.get_json()
-    is_valid, errors = Validator.validate_registration_data(data)
-    if not is_valid:
-        return jsonify({"errors": errors}), 400
+@app.errorhandler(401)
+def unauthorized(error):
+    return jsonify({"error": "Unauthorized", "message": str(error)}), 401
 
-    db_session = get_db_session()
-    try:
-        # Check if a user with the given email already exists
-        if AuthService.get_user_by_email(db_session, data['email']):
-            return jsonify({"error": "User already exists"}), 400
+@app.errorhandler(403)
+def forbidden(error):
+    return jsonify({"error": "Forbidden", "message": str(error)}), 403
 
-        # Create a new user and assign a default role
-        user = AuthService.create_user(
-            db_session,
-            email=data['email'],
-            username=data['username'],
-            password=data['password'],
-            first_name=data.get('first_name'),
-            last_name=data.get('last_name')
-        )
-        AuthService.assign_role_to_user(db_session, user, "user")
-        
-        return jsonify({"message": "User created successfully", "user_id": str(user.id)}), 201
-    finally:
-        close_db_session()
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({"error": "Not found", "message": str(error)}), 404
 
-@app.route('/login', methods=['POST'])
-def login():
-    """Endpoint to verify login details of a user and generate JWT token. Db sessions saved in the AuthService functions."""
+@app.errorhandler(405)
+def method_not_allowed(error):
+    return jsonify({"error": "Method not allowed", "message": str(error)}), 405
 
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
-    if not email or not password:
-        return jsonify({"error": "Email and password are required"}), 400
+@app.errorhandler(429)
+def too_many_requests(error):
+    return jsonify({"error": "Too many requests", "message": str(error)}), 429
 
-    db_session = get_db_session()
-    try:
-        user = AuthService.get_user_by_email(db_session, email)
-        if not user or not AuthService.verify_password(password, user.password_hash):
-            return jsonify({"error": "Invalid credentials"}), 401
-
-        access_token, refresh_token, token_jti = AuthService.generate_tokens(user)
-        # Store refresh token in the database
-        AuthService.store_refresh_token(db_session, user, token_jti)
-        
+@app.errorhandler(500)
+def internal_server_error(error):
+    # Log the error
+    app.logger.error(f"500 Error: {str(error)}")
+    
+    # In development mode, include traceback
+    if app.debug:
+        traceback_str = traceback.format_exc()
         return jsonify({
-            "access_token": access_token,
-            "refresh_token": refresh_token
-        }), 200
-    finally:
-        close_db_session()
-
-@app.route('/protected', methods=['GET'])
-@authenticate
-def protected():
-    # The authenticate middleware sets g.user_id, g.username, etc.
+            "error": "Internal server error",
+            "message": str(error),
+            "traceback": traceback_str
+        }), 500
+    
+    # In production, just return a generic message
     return jsonify({
-        "message": f"Hello, {g.username}! You have accessed a protected endpoint."
-    }), 200
+        "error": "Internal server error",
+        "message": "An unexpected error occurred"
+    }), 500
+
+@app.errorhandler(Exception)
+def handle_exception(error):
+    """Handle all unhandled exceptions."""
+    # Log the error
+    app.logger.error(f"Unhandled Exception: {str(error)}")
+    app.logger.error(traceback.format_exc())
+    
+    # Handle HTTPExceptions differently
+    if isinstance(error, HTTPException):
+        return jsonify({
+            "error": error.name,
+            "message": error.description
+        }), error.code
+    
+    # In development mode, include traceback
+    if app.debug:
+        traceback_str = traceback.format_exc()
+        return jsonify({
+            "error": "Internal server error",
+            "message": str(error),
+            "traceback": traceback_str
+        }), 500
+    
+    # In production, just return a generic message
+    return jsonify({
+        "error": "Internal server error",
+        "message": "An unexpected error occurred"
+    }), 500
+
+# Register teardown handler to ensure DB sessions are closed
+@app.teardown_appcontext
+def teardown_db(exception=None):
+    """Ensure database sessions are closed at the end of the request."""
+    close_db_session()
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5001)

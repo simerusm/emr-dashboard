@@ -133,14 +133,14 @@ class AuthService:
                 db_session.commit()
                 return False, None, ""
             
-            # Get the associated user
-            user = db_session.query(User).filter_by(id=uuid.UUID(user_id)).first()
+            # Get the associated user - use the token's user_id directly
+            user = db_session.query(User).get(db_token.user_id)
             
             if not user or not user.is_active:
                 return False, None, ""
             
             return True, user, token_jti
-            
+                
         except InvalidTokenError:
             return False, None, ""
     
@@ -158,7 +158,7 @@ class AuthService:
     def get_user_by_id(db_session: Session, user_id: str) -> Optional[User]:
         """Get a user by ID."""
         try:
-            return db_session.query(User).filter_by(id=uuid.UUID(user_id)).first()
+            return db_session.query(User).filter_by(id=user_id).first()
         except ValueError:
             return None
     
@@ -174,7 +174,6 @@ class AuthService:
             password_hash=password_hash,
             first_name=first_name,
             last_name=last_name,
-            verification_token=str(uuid.uuid4())
         )
         
         db_session.add(user)

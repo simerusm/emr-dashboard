@@ -164,3 +164,37 @@ Session = scoped_session(session_factory)
 
 ### Summary
 Using `scoped_session` provides a convenient way to manage database sessions by thread, but proper session cleanup is essential. The `finally` block ensures resources are cleaned up, making it crucial for robust session management.
+
+
+## Access Token vs Refresh Token
+
+### Access Token
+- Purpose: An access token is a short-lived token that is used to authenticate requests to protected resources (e.g., APIs). It proves that the user has been authenticated and is authorized to access certain resources.
+- Lifespan: Access tokens typically have a short expiration time (e.g., 15 minutes to 1 hour). This short lifespan helps minimize the risk of token theft, as even if an access token is compromised, it will only be valid for a limited time.
+- Usage: When a user logs in, the server generates an access token and sends it to the client. The client includes this token in the Authorization header of subsequent requests to access protected resources.
+
+### Refresh Token
+- Purpose: A refresh token is a long-lived token that is used to obtain new access tokens without requiring the user to log in again. It allows the user to maintain their session without re-entering their credentials.
+- Lifespan: Refresh tokens usually have a longer expiration time (e.g., days or weeks) compared to access tokens. They can also be revoked if necessary (e.g., when a user logs out or changes their password).
+- Usage: When the access token expires, the client can use the refresh token to request a new access token from the server. This process allows the user to stay logged in without needing to re-authenticate.
+
+### Workflow
+- User logs in:
+    - User provides credentials.
+    - Server validates credentials and generates:
+        - Access Token (short-lived)
+        - Refresh Token (long-lived)
+    - Both tokens are sent to the client.
+- Accessing Protected Resources:
+    - The client uses the access token to make requests to protected resources.
+- Access Token Expiration:
+    - After the access token expires, the client receives a 401 Unauthorized response when trying to access a protected resource.
+- Using Refresh Token:
+    - The client uses the refresh token to request a new access token from the server.
+    - If the refresh token is valid, the server issues a new access token (and possibly a new refresh token).
+- Continued Access:
+    - The client can now use the new access token to continue accessing protected resources without requiring the user to log in again.
+- Refresh Token Expiry:
+    - When a refresh token expires, the user is typically required to re-login to obtain a new set of tokens (both access and refresh tokens).
+
+In the `generate_tokens` method within the `AuthService` class, new access and refresh tokens are generated each time the method is called.
