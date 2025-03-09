@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import secrets
 from flask import Blueprint, request, jsonify, g, current_app, redirect
 
-from ..models import User
+from ..models import User, Role
 from ..services import AuthService, RBACService
 from ..utils import get_db_session, close_db_session, Validator
 from ..middleware.auth_middleware import authenticate, require_permissions, require_roles
@@ -186,5 +186,90 @@ def reset_password():
     except Exception as e:
         current_app.logger.error(f"Password reset error: {str(e)}")
         return jsonify({"error": "An error occurred processing your request"}), 500
+    finally:
+        close_db_session()
+
+@auth_bp.route('/init-admin', methods=['POST'])
+def init_admin():
+    """
+    Initialize admin user and roles. This endpoint will be called only once during setup.
+    IMPORTANT: This endpoint will be disabled or removed in production.
+    """
+    data = request.get_json()
+    setup_key = data.get('setup_key')
+    
+    # Verify setup key matches environment variable to prevent unauthorized access
+    if not setup_key or setup_key != current_app.config.get('ADMIN_SETUP_KEY', 'development_setup_key'):
+        return jsonify({"error": "Invalid setup key"}), 403
+    
+    db_session = get_db_session()
+    try:
+        # Check if admin role exists
+        admin_role = db_session.query(Role).filter_by(name='admin').first()
+        if not admin_role:
+            # Create admin role with permissions
+            admin_role = Role(
+                name="admin",
+                description="Administrator role",
+                permissions="create_user,read_user,update_user,delete_user,manage_roles"
+            )
+            db_session.add(admin_role)
+        
+        # Check if user role exists
+        user_role = db_session.query(Role).filter_by(name='user').first()
+        if not user_role:
+            # Create user role with permissions
+            user_role = Role(
+                name="user",
+                description="Regular user role",
+                permissions="read_self,update_self"
+            )
+            db_session.add(user_role)
+        
+        db_session.commit()
+        
+        # Check if admin exists by email
+        admin_email = data.get('email', 'admin@example.com')
+        existing_admin = AuthService.get_user_by_email(db_session, admin_email)
+        
+        if existing_admin:
+            # If admin exists, ensure they have the admin role
+            existing_roles = [role.name for role in existing_admin.roles]
+            if 'admin' not in existing_roles:
+                existing_admin.roles.append(admin_role)
+                db_session.commit()
+                
+            return jsonify({
+                "message": "Admin user already exists and has been updated with admin role",
+                "user_id": str(existing_admin.id)
+            }), 200
+        
+        # Admin doesn't exist, create a new one
+        admin_user = AuthService.create_user(
+            db_session,
+            email=admin_email,
+            username=data.get('username', 'admin'),
+            password=data.get('password', 'AdminPass123!'),
+            first_name=data.get('first_name', 'Admin'),
+            last_name=data.get('last_name', 'User')
+        )
+        
+        # Assign admin role to the user
+        admin_user.roles.append(admin_role)
+        db_session.commit()
+        
+        return jsonify({
+            "message": "Admin user and roles created successfully",
+            "user_id": str(admin_user.id),
+            "credentials": {
+                "email": admin_email,
+                "password": data.get('password', 'AdminPass123!')
+            }
+        }), 201
+        
+    except Exception as e:
+        db_session.rollback()
+        current_app.logger.error(f"Admin initialization error: {str(e)}")
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
     finally:
         close_db_session()

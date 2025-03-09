@@ -99,13 +99,11 @@ A production-grade authentication and authorization microservice built with Flas
 ## Testing the API with curl
 
 ### 1. Register a New User
-
 ```bash
 curl -X POST http://localhost:5001/auth/register \
      -H "Content-Type: application/json" \
      -d '{"email": "test@example.com", "username": "testuser", "password": "ValidPass123!"}'
 ```
-
 **Expected Output:**
 ```json
 {
@@ -115,13 +113,11 @@ curl -X POST http://localhost:5001/auth/register \
 ```
 
 ### 2. Login with the New User
-
 ```bash
 curl -X POST http://localhost:5001/auth/login \
      -H "Content-Type: application/json" \
      -d '{"email": "test@example.com", "password": "ValidPass123!"}'
 ```
-
 **Expected Output:**
 ```json
 {
@@ -137,7 +133,6 @@ curl -X POST http://localhost:5001/auth/login \
 ```
 
 ### 3. Access Protected Endpoint
-
 ```bash
 curl -X GET http://localhost:5001/users/protected-test \
      -H "Authorization: Bearer <access_token>"
@@ -152,12 +147,10 @@ Replace `<access_token>` with the actual token received from the login response.
 ```
 
 ### 4. Get User Profile
-
 ```bash
 curl -X GET http://localhost:5001/users/me \
      -H "Authorization: Bearer <access_token>"
 ```
-
 **Expected Output:**
 ```json
 {
@@ -176,7 +169,6 @@ curl -X GET http://localhost:5001/users/me \
 ```
 
 ### 5. Refresh Token
-
 ```bash
 curl -X POST http://localhost:5001/auth/refresh \
      -H "Content-Type: application/json" \
@@ -193,7 +185,6 @@ Replace `<refresh_token>` with the actual refresh token received from the login 
 ```
 
 ### 6. Update User Profile
-
 ```bash
 curl -X PUT http://localhost:5001/users/me \
      -H "Content-Type: application/json" \
@@ -202,9 +193,126 @@ curl -X PUT http://localhost:5001/users/me \
 ```
 
 ### 7. Health Check
-
 ```bash
 curl -X GET http://localhost:5001/health
+```
+
+### 8. Initialize Admin User and Roles
+This endpoint sets up the first admin user and creates necessary roles:
+```bash
+curl -X POST http://localhost:5001/auth/init-admin \
+     -H "Content-Type: application/json" \
+     -d '{
+        "setup_key": "development_setup_key",
+        "email": "admin@example.com",
+        "username": "admin",
+        "password": "AdminPassword123!",
+        "first_name": "Admin",
+        "last_name": "User"
+     }'
+```
+**Expected Output:**
+```json
+{
+    "message": "Admin user and roles created successfully",
+    "user_id": "93a4c98b-12d6-4553-902e-8afc75d98e21",
+    "credentials": {
+        "email": "admin@example.com",
+        "password": "AdminPassword123!"
+    }
+}
+```
+
+### 9. Login as Admin
+```bash
+curl -X POST http://localhost:5001/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"email": "admin@example.com", "password": "AdminPassword123!"}'
+```
+**Expected Output:**
+```json
+{
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+        "id": "93a4c98b-12d6-4553-902e-8afc75d98e21",
+        "username": "admin",
+        "email": "admin@example.com",
+        "roles": ["admin"]
+    }
+}
+```
+
+### 10. List All Users (Admin Only)
+```bash
+curl -X GET http://localhost:5001/admin/users \
+     -H "Authorization: Bearer <admin_access_token>"
+```
+Replace `<admin_access_token>` with the token received from admin login.
+
+### 11. Create a New Role (Admin Only)
+```bash
+curl -X POST http://localhost:5001/admin/roles \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer <admin_access_token>" \
+     -d '{
+        "name": "manager",
+        "description": "Manager role with elevated permissions",
+        "permissions": ["read_user", "update_user", "read_reports"]
+     }'
+```
+**Expected Output:**
+```json
+{
+    "message": "Role created successfully",
+    "role": {
+        "id": "456def78-9012-3456-7890-123456789abc",
+        "name": "manager",
+        "description": "Manager role with elevated permissions",
+        "permissions": ["read_user", "update_user", "read_reports"]
+    }
+}
+```
+
+### 12. Assign Roles to a User (Admin Only)
+```bash
+curl -X PUT http://localhost:5001/admin/users/<user_id>/roles \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer <admin_access_token>" \
+     -d '{
+        "roles": ["user", "manager"]
+     }'
+```
+Replace `<user_id>` with the ID of the user and `<admin_access_token>` with the admin token.
+
+**Expected Output:**
+```json
+{
+    "message": "User roles updated successfully",
+    "user": {
+        "id": "137155ac-2dd0-410d-8245-8820b75ad1f0",
+        "username": "testuser",
+        "email": "test@example.com",
+        "roles": ["user", "manager"]
+    }
+}
+```
+
+### 13. Get Role Information (Admin Only)
+```bash
+curl -X GET http://localhost:5001/admin/roles/manager \
+     -H "Authorization: Bearer <admin_access_token>"
+```
+**Expected Output:**
+```json
+{
+    "role": {
+        "id": "456def78-9012-3456-7890-123456789abc",
+        "name": "manager",
+        "description": "Manager role with elevated permissions",
+        "permissions": ["read_user", "update_user", "read_reports"]
+    }
+}
 ```
 
 ## Docker Setup
