@@ -12,11 +12,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    libpq-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+       build-essential \
+       python3-dev \
+       && apt-get clean
 
 # Create non-root user
 RUN addgroup --system app && adduser --system --group app
