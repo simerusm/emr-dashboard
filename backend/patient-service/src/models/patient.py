@@ -145,10 +145,9 @@ class Patient(Base):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "last_visit_date": self.last_visit_date.isoformat() if self.last_visit_date else None,
-            # Only include IDs for relationships to avoid circular references
-            "allergies": [str(a.id) for a in self.allergies] if self.allergies else [],
-            "conditions": [str(c.id) for c in self.conditions] if self.conditions else [],
-            "medications": [str(m.id) for m in self.medications] if self.medications else []
+            "allergies": [a.to_dict() for a in self.allergies] if self.allergies else [],
+            "conditions": [c.to_dict() for c in self.conditions] if self.conditions else [],
+            "medications": [m.to_dict() for m in self.medications] if self.medications else []
         }
 
 class Allergy(Base):
