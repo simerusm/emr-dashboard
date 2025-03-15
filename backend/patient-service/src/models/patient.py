@@ -9,10 +9,10 @@ import enum
 Base = declarative_base()
 
 class Gender(enum.Enum):
-    MALE = "male"
-    FEMALE = "female"
-    OTHER = "other"
-    UNKNOWN = "unknown"
+    MALE = "MALE"
+    FEMALE = "FEMALE"
+    OTHER = "OTHER"
+    UNKNOWN = "UNKNOWN"
 
 class BloodType(enum.Enum):
     A_POSITIVE = "A+"
@@ -88,7 +88,7 @@ class Patient(Base):
     is_active = Column(Boolean, default=True)
     
     # Additional structured data can be stored here
-    metadata = Column(JSONB, default={})
+    patient_metadata = Column(JSONB, default={})
     
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -141,7 +141,7 @@ class Patient(Base):
             "primary_care_physician": self.primary_care_physician,
             "notes": self.notes,
             "is_active": self.is_active,
-            "metadata": self.metadata,
+            "metadata": self.patient_metadata,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "last_visit_date": self.last_visit_date.isoformat() if self.last_visit_date else None,
@@ -279,7 +279,7 @@ class LabResult(Base):
     loinc_code = Column(String(20), index=True)
     
     # Additional structured data can be stored here
-    metadata = Column(JSONB, default={})
+    lab_metadata = Column(JSONB, default={})
     
     # Relationships
     patient = relationship("Patient", back_populates="lab_results")
@@ -302,7 +302,7 @@ class LabResult(Base):
             "ordering_provider": self.ordering_provider,
             "notes": self.notes,
             "loinc_code": self.loinc_code,
-            "metadata": self.metadata,
+            "metadata": self.lab_metadata,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }
@@ -332,7 +332,7 @@ class Visit(Base):
     oxygen_saturation = Column(Float)
     
     # Additional structured data can be stored here
-    metadata = Column(JSONB, default={})
+    visit_metadata = Column(JSONB, default={})
     
     # Relationships
     patient = relationship("Patient", back_populates="visits")
@@ -359,7 +359,7 @@ class Visit(Base):
                 "respiratory_rate": self.respiratory_rate,
                 "oxygen_saturation": self.oxygen_saturation
             },
-            "metadata": self.metadata,
+            "visit_metadata": self.metadata,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }
