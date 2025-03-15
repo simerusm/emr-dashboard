@@ -32,7 +32,7 @@ def create_patient():
         if 'mrn' in data and PatientService.get_patient_by_mrn(db_session, data['mrn']):
             return jsonify({"error": f"Patient with MRN {data['mrn']} already exists"}), 409
         
-        patient = PatientService.create_paxtient(db_session, data)
+        patient = PatientService.create_patient(db_session, data)
         
         return jsonify({
             "message": "Patient created successfully",

@@ -450,8 +450,8 @@ class PatientService:
         """Generate a unique Medical Record Number."""
         # This is a simplified example - in production, follow your organization's MRN format
         # and ensure uniqueness
-        timestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
-        random_suffix = str(uuid.uuid4())[:8]
+        timestamp = datetime.utcnow().strftime('%Y%m%d')
+        random_suffix = str(uuid.uuid4())[:4]
         return f"MRN-{timestamp}-{random_suffix}"
     
     @staticmethod
